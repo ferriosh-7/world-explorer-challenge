@@ -163,6 +163,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     fontWeight: typography.weight.medium,
     lineHeight: typography.fontSize.h6 * typography.lineHeight.normal,
+    paddingHorizontal: 5
   },
   list: {
     flex: 1,
