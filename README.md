@@ -12,35 +12,46 @@ A React Native app built for Sofía's Frontend Challenge that allows users to ex
 
 ## Technical Stack
 
-- **React Native** (Expo managed workflow)
+- **React Native 0.81.4** (ejected from Expo, native build)
 - **TypeScript** for type safety
 - **Apollo Client** for GraphQL
-- **React Navigation** for navigation
+- **React Navigation** (Stack Navigator)
 - **AsyncStorage** for data persistence
-- **React Native Elements** for UI components
+- **Custom UI Components** with consistent theming
 
 ## Project Structure
 
 ```
 src/
 ├── components/          # Reusable UI components
+│   ├── Button.tsx       # Custom button component
+│   ├── Card.tsx         # Card container component
+│   ├── FavoriteButton.tsx # Unified favorite button (with variants)
+│   ├── SearchInput.tsx  # Search input component
+│   ├── LoadingState.tsx # Loading spinner
+│   ├── ErrorState.tsx   # Error display component
+│   └── index.ts         # Component exports
 ├── screens/            # Screen components
-│   ├── HomeScreen.tsx
-│   ├── ContinentsScreen.tsx
-│   ├── CountriesScreen.tsx
-│   └── CountryScreen.tsx
+│   ├── HomeScreen.tsx   # Continents list
+│   ├── CountriesScreen.tsx # Countries list (by continent or all)
+│   ├── CountryScreen.tsx   # Country details
+│   └── FavoritesScreen.tsx # Favorites list
 ├── navigation/         # Navigation configuration
-│   └── AppNavigator.tsx
+│   └── AppNavigator.tsx # Stack navigator setup
 ├── services/           # API and data services
 │   ├── apollo.ts       # GraphQL client setup
 │   ├── queries.ts      # GraphQL queries
 │   └── storage.ts      # AsyncStorage utilities
 ├── hooks/              # Custom hooks
-│   └── useFavorites.ts # Favorites management
-├── types/              # TypeScript type definitions
-│   └── index.ts
-└── utils/              # Utility functions
-    └── constants.ts
+│   ├── useFavorites.tsx # Favorites management
+│   └── useDebounce.ts   # Search debouncing
+├── theme/              # Design system
+│   ├── colors.ts       # Color palette
+│   ├── typography.ts   # Typography scale
+│   ├── spacing.ts      # Spacing system
+│   └── index.ts        # Theme exports
+└── types/              # TypeScript type definitions
+    └── index.ts
 ```
 
 ## Getting Started
@@ -49,9 +60,10 @@ src/
 
 - Node.js (v16 or higher)
 - npm or yarn
-- Expo CLI
-- iOS Simulator (for iOS development)
+- React Native CLI
+- Xcode (for iOS development)
 - Android Studio (for Android development)
+- CocoaPods (for iOS dependencies)
 
 ### Installation
 
@@ -61,9 +73,9 @@ src/
    npm install
    ```
 
-3. Start the development server:
+3. Install iOS dependencies:
    ```bash
-   npm start
+   cd ios && pod install && cd ..
    ```
 
 4. Run on specific platforms:
@@ -73,9 +85,6 @@ src/
    
    # Android
    npm run android
-   
-   # Web
-   npm run web
    ```
 
 ## API Integration
@@ -122,11 +131,14 @@ The app features:
 
 ## Development Notes
 
-- Built with Expo for easy development and deployment
-- Uses React Navigation for smooth navigation experience
-- Apollo Client for efficient GraphQL data fetching
-- AsyncStorage for local data persistence
-- TypeScript for better development experience and code quality
+- **Native Build**: Ejected from Expo for native React Native functionality
+- **Navigation**: React Navigation Stack Navigator for smooth navigation experience
+- **GraphQL**: Apollo Client for efficient data fetching with caching
+- **Storage**: AsyncStorage for local data persistence
+- **Type Safety**: Full TypeScript implementation for better development experience
+- **Performance**: Optimized FlatLists with proper virtualization
+- **Accessibility**: Comprehensive accessibility labels and roles
+- **Code Quality**: Clean architecture with custom hooks and component patterns
 
 ## Future Enhancements
 

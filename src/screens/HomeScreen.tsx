@@ -1,5 +1,5 @@
-import React, { memo, useMemo, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, Platform } from 'react-native';
+import React, { memo, useMemo, useCallback, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, Platform, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@apollo/client/react';
 import { useNavigation } from '@react-navigation/native';
@@ -15,7 +15,8 @@ type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 const HomeScreen = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { favorites } = useFavorites();
-  const { data, loading, error } = useQuery<ContinentsResponse>(GET_CONTINENTS);
+  const { data, loading, error, refetch } = useQuery<ContinentsResponse>(GET_CONTINENTS);
+  const [refreshing, setRefreshing] = useState(false);
 
   const handleContinentPress = useCallback((continent: Continent) => {
     navigation.navigate('Countries', { continentCode: continent.code });
@@ -28,6 +29,15 @@ const HomeScreen = () => {
   const handleViewFavorites = useCallback(() => {
     navigation.navigate('Favorites');
   }, [navigation]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
 
   const renderContinent = useCallback(({ item }: { item: Continent }) => (
     <Card 
@@ -43,14 +53,15 @@ const HomeScreen = () => {
   const continents = useMemo(() => data?.continents || [], [data?.continents]);
 
   if (loading) {
-    return <LoadingState message="Loading continents..." />;
+    return <LoadingState message="Loading continents..." variant="skeleton-cards" itemCount={6} />;
   }
 
   if (error) {
     return (
       <ErrorState
         title="Error loading continents"
-        message={error.message}
+        error={error}
+        onRetry={() => refetch()}
       />
     );
   }
@@ -81,7 +92,15 @@ const HomeScreen = () => {
         removeClippedSubviews={true}
         maxToRenderPerBatch={10}
         windowSize={10}
-        getItemLayout={(data, index) => ({
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
+        getItemLayout={(_, index) => ({
           length: 80, // Approximate item height
           offset: 80 * index,
           index,
@@ -107,7 +126,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   header: {
-    padding: spacing['2xl'],
+    paddingHorizontal: spacing['2xl'],
+    paddingTop: spacing['2xl'],
+    paddingBottom: spacing['3xl'],
     backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
@@ -124,21 +145,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    minHeight: 70,
   },
   headerText: {
     flex: 1,
   },
   title: {
-    fontSize: typography['3xl'],
-    fontWeight: typography.extrabold,
+    fontSize: typography.fontSize.h2,
+    fontWeight: typography.weight.extrabold,
     color: colors.textPrimary,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
     letterSpacing: typography.letterSpacing.tight,
+    lineHeight: typography.fontSize.h2 * typography.lineHeight.tight,
   },
   subtitle: {
-    fontSize: typography.base,
+    fontSize: typography.fontSize.h6,
     color: colors.textSecondary,
-    fontWeight: typography.medium,
+    fontWeight: typography.weight.medium,
+    lineHeight: typography.fontSize.h6 * typography.lineHeight.normal,
   },
   list: {
     flex: 1,
@@ -148,17 +172,17 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.OS === 'android' ? spacing.sm : 0,
   },
   continentName: {
-    fontSize: typography.xl,
-    fontWeight: typography.bold,
+    fontSize: typography.fontSize.h5,
+    fontWeight: typography.weight.bold,
     color: colors.textPrimary,
     marginBottom: spacing.sm,
     letterSpacing: typography.letterSpacing.tight,
   },
   continentCode: {
-    fontSize: typography.sm,
+    fontSize: typography.fontSize.body2,
     color: colors.textSecondary,
     textTransform: 'uppercase',
-    fontWeight: typography.semibold,
+    fontWeight: typography.weight.semibold,
     letterSpacing: typography.letterSpacing.wider,
   },
   buttonContainer: {

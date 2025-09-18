@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { colors, typography, spacing } from '../theme';
 
 interface ButtonProps {
@@ -30,10 +31,18 @@ const Button: React.FC<ButtonProps> = ({
     styles[`${variant}Text`],
   ];
 
+  const handlePress = () => {
+    ReactNativeHapticFeedback.trigger('impactMedium', {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false,
+    });
+    onPress();
+  };
+
   return (
     <TouchableOpacity
       style={buttonStyle}
-      onPress={onPress}
+      onPress={handlePress}
       activeOpacity={0.8}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel || title}
@@ -68,8 +77,8 @@ const styles = StyleSheet.create({
     shadowColor: colors.primary,
   },
   baseText: {
-    fontSize: typography.base,
-    fontWeight: typography.bold,
+    fontSize: typography.fontSize.body1,
+    fontWeight: typography.weight.bold,
     letterSpacing: typography.letterSpacing.wide,
   },
   primaryText: {

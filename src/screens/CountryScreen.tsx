@@ -6,7 +6,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList, Country, CountryResponse } from '../types';
 import { GET_COUNTRY_DETAILS } from '../services/queries';
 import { useFavorites } from '../hooks/useFavorites';
-import { CountryFavoriteButton, LoadingState, ErrorState } from '../components';
+import { FavoriteButton, LoadingState, ErrorState } from '../components';
 import { colors, typography, spacing } from '../theme';
 
 type CountryScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Country'>;
@@ -39,7 +39,7 @@ const CountryScreen = memo(() => {
   }, [isFavorite, addFavorite, removeFavorite, countryCode]);
 
   if (loading) {
-    return <LoadingState message="Loading country details..." />;
+    return <LoadingState message="Loading country details..." variant="skeleton-detail" />;
   }
 
   if (error) {
@@ -64,9 +64,10 @@ const CountryScreen = memo(() => {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerTop}>
-          <CountryFavoriteButton
+          <FavoriteButton
             isFavorite={isFavorite(countryCode)}
             onPress={handleFavoritePress}
+            variant="compact"
           />
         </View>
         <Text style={styles.emoji}>{country.emoji}</Text>
@@ -94,7 +95,7 @@ const CountryScreen = memo(() => {
         <View style={styles.detailItem}>
           <Text style={styles.detailLabel}>Languages</Text>
           <View style={styles.languagesContainer}>
-            {country.languages.map((language, index) => (
+            {country.languages.map((language) => (
               <View key={language.code} style={styles.languageItem}>
                 <Text style={styles.languageName}>{language.name}</Text>
                 <Text style={styles.languageCode}>({language.code})</Text>
@@ -134,23 +135,23 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
   emoji: {
-    fontSize: typography['8xl'],
+    fontSize: typography.fontSize.display1,
     marginBottom: spacing.xl,
   },
   name: {
-    fontSize: typography['4xl'],
-    fontWeight: typography.extrabold,
+    fontSize: typography.fontSize.h2,
+    fontWeight: typography.weight.extrabold,
     color: colors.textPrimary,
     marginBottom: spacing.sm,
     textAlign: 'center',
     letterSpacing: typography.letterSpacing.tight,
   },
   code: {
-    fontSize: typography.base,
+    fontSize: typography.fontSize.body1,
     color: colors.textSecondary,
     textTransform: 'uppercase',
     marginBottom: spacing['2xl'],
-    fontWeight: typography.semibold,
+    fontWeight: typography.weight.semibold,
     letterSpacing: typography.letterSpacing.wider,
   },
   detailsContainer: {
@@ -173,22 +174,22 @@ const styles = StyleSheet.create({
     borderColor: colors.borderLight,
   },
   detailLabel: {
-    fontSize: typography.lg,
-    fontWeight: typography.bold,
+    fontSize: typography.fontSize.h6,
+    fontWeight: typography.weight.bold,
     color: colors.textPrimary,
     marginBottom: spacing.md,
     letterSpacing: typography.letterSpacing.tight,
   },
   detailValue: {
-    fontSize: typography.base,
+    fontSize: typography.fontSize.body1,
     color: colors.textSecondary,
-    fontWeight: typography.medium,
+    fontWeight: typography.weight.medium,
   },
   detailValueLink: {
-    fontSize: typography.base,
+    fontSize: typography.fontSize.body1,
     color: colors.primary,
     textDecorationLine: 'underline',
-    fontWeight: typography.semibold,
+    fontWeight: typography.weight.semibold,
   },
   languagesContainer: {
     flexDirection: 'row',
@@ -203,14 +204,14 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   languageName: {
-    fontSize: typography.sm,
-    fontWeight: typography.semibold,
+    fontSize: typography.fontSize.body2,
+    fontWeight: typography.weight.semibold,
     color: colors.textPrimary,
   },
   languageCode: {
-    fontSize: typography.xs,
+    fontSize: typography.fontSize.caption,
     color: colors.textSecondary,
-    fontWeight: typography.medium,
+    fontWeight: typography.weight.medium,
     marginTop: spacing.xs,
   },
 });

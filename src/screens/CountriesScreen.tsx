@@ -7,7 +7,7 @@ import { RootStackParamList, CountryListItem, CountriesResponse } from '../types
 import { GET_COUNTRIES_BY_CONTINENT, GET_ALL_COUNTRIES } from '../services/queries';
 import { useFavorites } from '../hooks/useFavorites';
 import { useDebounce } from '../hooks/useDebounce';
-import { Card, SearchInput, FavoriteButton, CountryFavoriteButton, LoadingState, ErrorState } from '../components';
+import { Card, SearchInput, FavoriteButton, LoadingState, ErrorState } from '../components';
 import { colors, typography, spacing } from '../theme';
 
 type CountriesScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Countries'>;
@@ -85,9 +85,10 @@ const CountriesScreen = memo(() => {
           )}
         </View>
       </View>
-      <CountryFavoriteButton
+      <FavoriteButton
         isFavorite={isFavorite(item.code)}
         onPress={() => handleFavoritePress(item.code)}
+        variant="compact"
       />
     </Card>
   ), [handleCountryPress, handleFavoritePress, isFavorite]);
@@ -112,7 +113,7 @@ const CountriesScreen = memo(() => {
           <SearchInput
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholder="Search countries or languages..."
+            placeholder="Search countries/languages"
             onClear={handleSearchClear}
           />
         </View>
@@ -191,37 +192,37 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   countryEmoji: {
-    fontSize: typography['5xl'],
+    fontSize: typography.fontSize.h1,
     marginRight: spacing.xl,
   },
   countryDetails: {
     flex: 1,
   },
   countryName: {
-    fontSize: typography.lg,
-    fontWeight: typography.bold,
+    fontSize: typography.fontSize.h6,
+    fontWeight: typography.weight.bold,
     color: colors.textPrimary,
     marginBottom: spacing.sm,
     letterSpacing: typography.letterSpacing.tight,
   },
   countryCode: {
-    fontSize: typography.sm,
+    fontSize: typography.fontSize.body2,
     color: colors.textSecondary,
     textTransform: 'uppercase',
     marginBottom: spacing.xs,
-    fontWeight: typography.semibold,
+    fontWeight: typography.weight.semibold,
     letterSpacing: typography.letterSpacing.wider,
   },
   countryCurrency: {
-    fontSize: typography.xs,
+    fontSize: typography.fontSize.caption,
     color: colors.textSecondary,
-    fontWeight: typography.medium,
+    fontWeight: typography.weight.medium,
   },
   countryLanguages: {
-    fontSize: typography.xs,
+    fontSize: typography.fontSize.caption,
     color: colors.textSecondary,
     marginTop: spacing.xs,
-    fontWeight: typography.medium,
+    fontWeight: typography.weight.medium,
   },
 });
 

@@ -31,6 +31,15 @@ export const colors = {
   // Shadow colors
   shadow: '#8b5cf6',
   shadowLight: '#c4b5fd',
+  
+  // Card background
+  cardBackground: '#fff',
+  
+  // Skeleton colors
+  skeleton: {
+    base: '#f1f5f9',
+    highlight: '#e2e8f0',
+  },
 } as const;
 
 export type ColorKey = keyof typeof colors;

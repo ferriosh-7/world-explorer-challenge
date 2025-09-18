@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { TouchableOpacity, Text, View, StyleSheet, ViewStyle, Animated } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { colors, typography, spacing } from '../theme';
 
 interface FavoriteButtonProps {
@@ -9,6 +10,7 @@ interface FavoriteButtonProps {
   count?: number;
   style?: ViewStyle;
   showCount?: boolean;
+  variant?: 'default' | 'compact';
   accessibilityLabel?: string;
   accessibilityHint?: string;
 }
@@ -19,6 +21,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   count = 0,
   style,
   showCount = true,
+  variant = 'default',
   accessibilityLabel,
   accessibilityHint,
 }) => {
@@ -26,6 +29,12 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   const bounceAnim = useRef(new Animated.Value(1)).current;
 
   const handlePress = () => {
+    // Add haptic feedback
+    ReactNativeHapticFeedback.trigger('impactLight', {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false,
+    });
+
     // Scale down animation
     Animated.sequence([
       Animated.timing(scaleAnim, {
@@ -57,24 +66,35 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
     onPress();
   };
 
+  const isCompact = variant === 'compact';
+  const buttonStyle = isCompact ? styles.compactButton : styles.favoritesButton;
+  const iconColor = isCompact 
+    ? (isFavorite ? colors.secondary : colors.textPlaceholder)
+    : (count ? colors.secondary : colors.textPlaceholder);
+  const borderColor = isCompact ? 'transparent' : (count ? colors.secondary : colors.textPlaceholder);
+
   return (
     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
       <TouchableOpacity
-        style={[styles.favoritesButton, style, {borderColor: count ? colors.secondary : colors.textPlaceholder }]}
+        style={[buttonStyle, style, { borderColor }]}
         onPress={handlePress}
         activeOpacity={0.8}
         accessibilityRole="button"
-        accessibilityLabel={accessibilityLabel || `Favorites button with ${count} items`}
-        accessibilityHint={accessibilityHint || 'Tap to view favorites'}
+        accessibilityLabel={accessibilityLabel || (isCompact 
+          ? (isFavorite ? 'Remove from favorites' : 'Add to favorites')
+          : `Favorites button with ${count} items`)}
+        accessibilityHint={accessibilityHint || (isCompact 
+          ? (isFavorite ? 'Tap to remove this country from your favorites' : 'Tap to add this country to your favorites')
+          : 'Tap to view favorites')}
       >
         <Animated.View style={{ transform: [{ scale: bounceAnim }] }}>
           <MaterialIcons
             name={isFavorite ? 'favorite' : 'favorite-border'}
             size={24}
-            color={count ? colors.secondary : colors.textPlaceholder}
+            color={iconColor}
           />
         </Animated.View>
-        {showCount && count > 0 && (
+        {!isCompact && showCount && count > 0 && (
           <View style={styles.favoritesBadge}>
             <Text style={styles.favoritesCount}>{count}</Text>
           </View>
@@ -95,6 +115,12 @@ const styles = StyleSheet.create({
     minWidth: 52,
     minHeight: 52,
     borderWidth: 1,
+  },
+  compactButton: {
+    padding: spacing.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 0,
   },
   favoritesBadge: {
     position: 'absolute',
@@ -117,8 +143,8 @@ const styles = StyleSheet.create({
   },
   favoritesCount: {
     color: colors.white,
-    fontSize: typography.xs,
-    fontWeight: typography.bold,
+    fontSize: typography.fontSize.caption,
+    fontWeight: typography.weight.bold,
   },
 });
 

@@ -1,36 +1,24 @@
 {
-  "expo": {
-    "name": "World Explorer",
-    "slug": "world-explorer-app-v2",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/logo.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/logo.png",
-      "resizeMode": "contain",
+  "name": "World Explorer",
+  "displayName": "World Explorer",
+  "version": "1.0.0",
+  "orientation": "portrait",
+  "icon": "./assets/logo.png",
+  "userInterfaceStyle": "light",
+  "splash": {
+    "image": "./assets/logo.png",
+    "resizeMode": "contain",
+    "backgroundColor": "#8b5cf6"
+  },
+  "ios": {
+    "supportsTablet": true,
+    "bundleIdentifier": "com.worldexplorer.app.v2"
+  },
+  "android": {
+    "adaptiveIcon": {
+      "foregroundImage": "./assets/logo.png",
       "backgroundColor": "#8b5cf6"
     },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.worldexplorer.app.v2"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/logo.png",
-        "backgroundColor": "#8b5cf6"
-      },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "package": "com.worldexplorer.app.v2"
-    },
-    "web": {
-      "favicon": "./assets/logo.png"
-    },
-    "platforms": ["ios", "android"],
-    "assetBundlePatterns": [
-      "**/*"
-    ]
+    "package": "com.worldexplorer.app.v2"
   }
 }

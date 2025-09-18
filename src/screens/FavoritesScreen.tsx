@@ -1,5 +1,6 @@
 import React, { useState, memo, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, Platform } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useQuery } from '@apollo/client/react';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -7,7 +8,8 @@ import { RootStackParamList, CountryListItem } from '../types';
 import { GET_ALL_COUNTRIES } from '../services/queries';
 import { useFavorites } from '../hooks/useFavorites';
 import { useDebounce } from '../hooks/useDebounce';
-import { Card, SearchInput, CountryFavoriteButton, LoadingState, ErrorState, Button } from '../components';
+import { useRecentSearches } from '../hooks/useRecentSearches';
+import { Card, SearchInput, FavoriteButton, LoadingState, ErrorState, Button, SearchEmptyState, FavoritesEmptyState } from '../components';
 import { colors, typography, spacing } from '../theme';
 
 type FavoritesScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Favorites'>;
@@ -15,6 +17,7 @@ type FavoritesScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Fa
 const FavoritesScreen = memo(() => {
   const navigation = useNavigation<FavoritesScreenNavigationProp>();
   const { favorites, removeFavorite, isFavorite } = useFavorites();
+  const { addRecentSearch } = useRecentSearches();
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
@@ -31,6 +34,11 @@ const FavoritesScreen = memo(() => {
   const handleSearchClear = useCallback(() => {
     setSearchQuery('');
   }, []);
+
+  const handleSearchSubmit = useCallback((query: string) => {
+    // We'll add the search after the user submits, result count will be updated later
+    addRecentSearch(query, 'country');
+  }, [addRecentSearch]);
 
   const countries = useMemo(() => data?.countries || [], [data?.countries]);
 
@@ -77,9 +85,10 @@ const FavoritesScreen = memo(() => {
           )}
         </View>
       </View>
-      <CountryFavoriteButton
+      <FavoriteButton
         isFavorite={true}
         onPress={() => handleFavoritePress(item.code)}
+        variant="compact"
       />
     </Card>
   ), [handleCountryPress, handleFavoritePress]);
@@ -87,32 +96,24 @@ const FavoritesScreen = memo(() => {
   const renderEmptyState = () => {
     const isSearching = searchQuery.length > 0;
     
+    if (isSearching) {
+      return (
+        <SearchEmptyState
+          searchQuery={searchQuery}
+          onClear={handleSearchClear}
+        />
+      );
+    }
+    
     return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyIcon}>{isSearching ? '🔍' : '💜'}</Text>
-        <Text style={styles.emptyTitle}>
-          {isSearching ? 'No Results Found' : 'No Favorites Yet'}
-        </Text>
-        <Text style={styles.emptySubtitle}>
-          {isSearching 
-            ? `No favorites match "${searchQuery}". Try a different search term.`
-            : 'Start exploring countries and add them to your favorites by tapping the heart icon.'
-          }
-        </Text>
-        {!isSearching && (
-          <Button
-            title="Explore Countries"
-            onPress={() => navigation.navigate('Home')}
-            variant="primary"
-            style={styles.exploreButton}
-          />
-        )}
-      </View>
+      <FavoritesEmptyState
+        onExplore={() => navigation.navigate('Home')}
+      />
     );
   };
 
   if (loading) {
-    return <LoadingState message="Loading favorites..." />;
+    return <LoadingState message="Loading favorites..." variant="skeleton-countries" itemCount={8} />;
   }
 
   if (error) {
@@ -140,6 +141,7 @@ const FavoritesScreen = memo(() => {
             onChangeText={setSearchQuery}
             placeholder="Search favorites..."
             onClear={handleSearchClear}
+            onSubmit={handleSearchSubmit}
           />
         </View>
       )}
@@ -155,7 +157,7 @@ const FavoritesScreen = memo(() => {
         removeClippedSubviews={true}
         maxToRenderPerBatch={10}
         windowSize={10}
-        getItemLayout={(data, index) => ({
+        getItemLayout={(_, index) => ({
           length: 100, // Approximate item height
           offset: 100 * index,
           index,
@@ -191,16 +193,16 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   title: {
-    fontSize: typography['4xl'],
-    fontWeight: typography.extrabold,
+    fontSize: typography.fontSize.h2,
+    fontWeight: typography.weight.extrabold,
     color: colors.textPrimary,
     marginBottom: spacing.sm,
     letterSpacing: typography.letterSpacing.tight,
   },
   subtitle: {
-    fontSize: typography.base,
+    fontSize: typography.fontSize.body1,
     color: colors.textSecondary,
-    fontWeight: typography.medium,
+    fontWeight: typography.weight.medium,
   },
   searchContainer: {
     padding: spacing.lg,
@@ -228,67 +230,37 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   countryEmoji: {
-    fontSize: typography['5xl'],
+    fontSize: typography.fontSize.h1,
     marginRight: spacing.xl,
   },
   countryDetails: {
     flex: 1,
   },
   countryName: {
-    fontSize: typography.lg,
-    fontWeight: typography.bold,
+    fontSize: typography.fontSize.h6,
+    fontWeight: typography.weight.bold,
     color: colors.textPrimary,
     marginBottom: spacing.sm,
     letterSpacing: typography.letterSpacing.tight,
   },
   countryCode: {
-    fontSize: typography.sm,
+    fontSize: typography.fontSize.body2,
     color: colors.textSecondary,
     textTransform: 'uppercase',
     marginBottom: spacing.xs,
-    fontWeight: typography.semibold,
+    fontWeight: typography.weight.semibold,
     letterSpacing: typography.letterSpacing.wider,
   },
   countryCurrency: {
-    fontSize: typography.xs,
+    fontSize: typography.fontSize.caption,
     color: colors.textSecondary,
-    fontWeight: typography.medium,
+    fontWeight: typography.weight.medium,
   },
   countryLanguages: {
-    fontSize: typography.xs,
+    fontSize: typography.fontSize.caption,
     color: colors.textSecondary,
     marginTop: spacing.xs,
-    fontWeight: typography.medium,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing['4xl'],
-  },
-  emptyIcon: {
-    fontSize: typography['8xl'],
-    color: colors.primaryLight,
-    marginBottom: spacing['2xl'],
-  },
-  emptyTitle: {
-    fontSize: typography['3xl'],
-    fontWeight: typography.extrabold,
-    color: colors.textPrimary,
-    marginBottom: spacing.lg,
-    textAlign: 'center',
-    letterSpacing: typography.letterSpacing.tight,
-  },
-  emptySubtitle: {
-    fontSize: typography.base,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: typography.lineHeight.relaxed * typography.base,
-    marginBottom: spacing['3xl'],
-    fontWeight: typography.medium,
-  },
-  exploreButton: {
-    marginTop: spacing.sm,
+    fontWeight: typography.weight.medium,
   },
 });
 
